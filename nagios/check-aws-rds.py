@@ -17,6 +17,60 @@ WARNING = 1
 CRITICAL = 2
 UNKNOWN = 3
 
+# Define units for different metrics
+METRIC_UNITS = {
+    "BinLogDiskUsage": "Bytes",
+    "BurstBalance": "%",
+    "CheckpointLag": "Seconds",
+    "ConnectionAttempts": "Count",
+    "CPUUtilization": "%",
+    "CPUCreditUsage": "Credits (vCPU-minutes)",
+    "CPUCreditBalance": "Credits (vCPU-minutes)",
+    "CPUSurplusCreditBalance": "Credits (vCPU-minutes)",
+    "CPUSurplusCreditsCharged": "Credits (vCPU-minutes)",
+    "DatabaseConnections": "Count",
+    "DiskQueueDepth": "Count",
+    "DiskQueueDepthLogVolume": "Count",
+    "EBSByteBalance%": "%",
+    "EBSIOBalance%": "%",
+    "FailedSQLServerAgentJobsCount": "Count per minute",
+    "FreeableMemory": "Bytes",
+    "FreeLocalStorage": "Bytes",
+    "FreeLocalStoragePercent": "%",
+    "FreeStorageSpace": "Bytes",
+    "FreeStorageSpaceLogVolume": "Bytes",
+    "IamDbAuthConnectionRequests": "Count",
+    "MaximumUsedTransactionIDs": "Count",
+    "NetworkReceiveThroughput": "Bytes per second",
+    "NetworkTransmitThroughput": "Bytes per second",
+    "OldestReplicationSlotLag": "Bytes",
+    "ReadIOPS": "Count per second",
+    "ReadIOPSLocalStorage": "Count per second",
+    "ReadIOPSLogVolume": "Count per second",
+    "ReadLatency": "Seconds",
+    "ReadLatencyLocalStorage": "Seconds",
+    "ReadLatencyLogVolume": "Seconds",
+    "ReadThroughput": "Bytes per second",
+    "ReadThroughputLocalStorage": "Bytes per second",
+    "ReadThroughputLogVolume": "Bytes per second",
+    "ReplicaLag": "Seconds",
+    "ReplicationChannelLag": "Seconds",
+    "ReplicationSlotDiskUsage": "Bytes",
+    "SwapUsage": "Bytes",
+    "TransactionLogsDiskUsage": "Bytes",
+    "TransactionLogsGeneration": "Bytes per second",
+    "WriteIOPS": "Count per second",
+    "WriteIOPSLocalStorage": "Count per second",
+    "WriteIOPSLogVolume": "Count per second",
+    "WriteLatency": "Seconds",
+    "WriteLatencyLocalStorage": "Seconds",
+    "WriteLatencyLogVolume": "Seconds",
+    "WriteThroughput": "Bytes per second",
+    "WriteThroughputLogVolume": "Bytes per second",
+    "WriteThroughputLocalStorage": "Bytes per second",
+}
+
+
 class RDS:
     """RDS connection class"""
 
@@ -113,15 +167,18 @@ def main():
         print('UNKNOWN Unable to get RDS statistics')
         sys.exit(UNKNOWN)
 
+    # Determine the unit based on the metric, default: no suffix
+    unit = METRIC_UNITS.get(options.metric, "")
+
     if options.crit is not None and result >= options.crit:
         status = CRITICAL
-        print(f'{options.ident} {options.metric}: CRITICAL {result}%')
+        print(f'{options.ident} {options.metric}: CRITICAL {result} {unit}')
     elif options.warn is not None and result >= options.warn:
         status = WARNING
-        print(f'{options.ident} {options.metric}: WARNING {result}%')
+        print(f'{options.ident} {options.metric}: WARNING {result} {unit}')
     else:
         status = OK
-        print(f'{options.ident} {options.metric}: OK {result}%')
+        print(f'{options.ident} {options.metric}: OK {result} {unit}')
     
     sys.exit(status)
 
